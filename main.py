@@ -5,7 +5,7 @@ from config import technologies
 from scraper.scraper import JobScraper
 
 
-def scrape_job_data(base_url, csv_path):
+def scrape_job_data(base_url: str, csv_path: str) -> bool:
     scraper = JobScraper(base_url, technologies)
     try:
         scraper.fetch_jobs()
@@ -16,7 +16,7 @@ def scrape_job_data(base_url, csv_path):
     return True
 
 
-def process_and_visualize_data(csv_path, experience_levels):
+def process_and_visualize_data(csv_path: str, experience_levels: list) -> None:
     data_reader = DataReader()
     data_cleaner = DataCleaner()
     visualizer = Visualizer()
@@ -42,7 +42,7 @@ def process_and_visualize_data(csv_path, experience_levels):
         print(f"An error occurred: {e}")
 
 
-def main():
+def main() -> None:
     base_url = "https://djinni.co/jobs/?primary_keyword=Python"
 
     csv_path = os.path.join("data", "data.csv")

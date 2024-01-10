@@ -4,14 +4,14 @@ import matplotlib.pyplot as plt
 
 class DataReader:
     @staticmethod
-    def read_data(file_path):
+    def read_data(file_path: str) -> pd.DataFrame:
         data = pd.read_csv(file_path)
         return data
 
 
 class DataCleaner:
     @staticmethod
-    def clean_data(data):
+    def clean_data(data: pd.DataFrame) -> pd.DataFrame:
         data.dropna(subset=["Technologies"], inplace=True)
         data["Technologies"] = data["Technologies"].apply(
             lambda x: x.split(", ") if isinstance(x, str) else []
@@ -21,7 +21,9 @@ class DataCleaner:
 
 class Visualizer:
     @staticmethod
-    def plot_technology_counts(technology_counts, experience_levels):
+    def plot_technology_counts(
+        technology_counts: pd.DataFrame, experience_levels: list
+    ) -> None:
         fig, axes = plt.subplots(
             nrows=len(experience_levels), ncols=1, figsize=(15, 15)
         )
