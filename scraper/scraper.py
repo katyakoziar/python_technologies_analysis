@@ -110,3 +110,12 @@ class JobScraper:
                         return "senior"
 
         return "Not specified"
+
+    def write_to_csv(self, file_path):
+        with open(file_path, "w", newline="", encoding="utf-8") as file:
+            writer = csv.writer(file)
+            writer.writerow(["Job Title", "Experience Level", "Technologies"])
+            for job in self.jobs:
+                writer.writerow([job["title"], job["experience"], ', '.join(job["technologies"])])
+
+        print(f"Data written to {file_path}")
