@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -36,5 +38,11 @@ class Visualizer:
             axes[i].set_title(f"Top 20 Technologies for {level.capitalize()} Level")
             axes[i].set_ylabel("Counts")
             axes[i].tick_params(axis="x", rotation=90)
+
+            timestamp = datetime.now().strftime("%Y%m%d")
+            file_name = f"data/plot_{level}_{timestamp}.png"
+
+            plt.savefig(file_name)
+
         plt.tight_layout()
         plt.show()
