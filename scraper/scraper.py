@@ -1,11 +1,21 @@
 import csv
+import os
 import re
+import logging
 from selenium import webdriver
 from selenium.common import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
+
+log_file_path = os.path.join(os.path.dirname(__file__), "..", "data", "analyzer.log")
+logging.basicConfig(
+    filename=log_file_path,
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 class JobScraper:
@@ -21,7 +31,7 @@ class JobScraper:
             url = f"{self.base_url}"
             if page_number > 1:
                 url = f"{self.base_url}&page={page_number}"
-            print(f"Fetching page {page_number}")
+            logging.info(f"Fetching page {page_number}")
 
             driver.get(url)
 
@@ -32,7 +42,7 @@ class JobScraper:
             jobs = driver.find_elements(By.CLASS_NAME, "job-list-item")
 
             if not jobs:
-                print("No job elements found on the page.")
+                logging.error("No more pages to fetch.")
                 break
 
             for job in jobs:
@@ -46,7 +56,7 @@ class JobScraper:
                 next_button.click()
                 page_number += 1
             except NoSuchElementException:
-                print("No more pages to fetch.")
+                logging.error("No more pages to fetch.")
                 break
 
         driver.quit()
@@ -89,7 +99,7 @@ class JobScraper:
             job_title_element = job.find_element(By.CLASS_NAME, "job-list-item__link")
             job_title = job_title_element.text.lower()
         except NoSuchElementException:
-            print("Necessary elements not found in job listing.")
+            logging.error("Necessary elements not found in job listing.")
             return "Not specified"
 
         text_to_check = job_info + " " + job_title
@@ -127,4 +137,4 @@ class JobScraper:
                     [job["title"], job["experience"], ", ".join(job["technologies"])]
                 )
 
-        print(f"Data written to {file_path}")
+        logging.info(f"Data written to {file_path}")

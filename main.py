@@ -1,8 +1,16 @@
+import logging
 import os
 
 from analyzer.visualizer import DataReader, DataCleaner, Visualizer
 from config import technologies
 from scraper.scraper import JobScraper
+
+
+logging.basicConfig(
+    filename="data/analyzer.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 def scrape_job_data(base_url: str, csv_path: str) -> bool:
@@ -11,7 +19,7 @@ def scrape_job_data(base_url: str, csv_path: str) -> bool:
         scraper.fetch_jobs()
         scraper.write_to_csv(csv_path)
     except Exception as e:
-        print(f"Failed to retrieve the webpage: {e}")
+        logging.error(f"Failed to retrieve the webpage: {e}")
         return False
     return True
 
@@ -37,9 +45,9 @@ def process_and_visualize_data(csv_path: str, experience_levels: list) -> None:
         )
         visualizer.plot_technology_counts(top_techs_by_level, experience_levels)
     except FileNotFoundError as e:
-        print(f"Error reading the file: {e}")
+        logging.error(f"Error reading the file: {e}")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logging.error(f"An error occurred: {e}")
 
 
 def main() -> None:
