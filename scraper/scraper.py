@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 import csv
 import os
 import re
 import logging
 from selenium import webdriver
 from selenium.common import NoSuchElementException
+from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
@@ -27,39 +30,48 @@ class JobScraper:
     def fetch_jobs(self) -> None:
         driver = webdriver.Chrome()
         page_number = 1
-        while True:
-            url = f"{self.base_url}"
-            if page_number > 1:
-                url = f"{self.base_url}&page={page_number}"
-            logging.info(f"Fetching page {page_number}")
 
-            driver.get(url)
+        try:
+            while True:
+                content = self.fetch_page(driver, page_number)
+                if not content:
+                    logging.error("No more pages to fetch.")
+                    break
 
+                self.parse_page(content)
+                if not self.navigate_to_next_page(driver):
+                    logging.info("No more pages to fetch.")
+                    break
+
+                page_number += 1
+        finally:
+            driver.quit()
+
+    def fetch_page(self, driver: WebDriver, page_number: int) -> list | None:
+        url = f"{self.base_url}&page={page_number}" if page_number > 1 else self.base_url
+        logging.info(f"Fetching page {page_number}")
+        driver.get(url)
+        try:
             WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "job-list-item"))
             )
+            return driver.find_elements(By.CLASS_NAME, "job-list-item")
+        except NoSuchElementException:
+            return None
 
-            jobs = driver.find_elements(By.CLASS_NAME, "job-list-item")
+    def parse_page(self, jobs: list) -> None:
+        for job in jobs:
+            self.jobs.append(self.parse_job(job))
 
-            if not jobs:
-                logging.error("No more pages to fetch.")
-                break
-
-            for job in jobs:
-                self.jobs.append(self.parse_job(job))
-
-            try:
-                next_button = driver.find_element(
-                    By.CSS_SELECTOR,
-                    ".pagination .page-item:not(.disabled) .bi-chevron-right",
-                )
-                next_button.click()
-                page_number += 1
-            except NoSuchElementException:
-                logging.error("No more pages to fetch.")
-                break
-
-        driver.quit()
+    def navigate_to_next_page(self, driver: WebDriver) -> bool:
+        try:
+            next_button = driver.find_element(
+                By.CSS_SELECTOR, ".pagination .page-item:not(.disabled) .bi-chevron-right"
+            )
+            next_button.click()
+            return True
+        except NoSuchElementException:
+            return False
 
     def parse_job(self, job: WebElement) -> dict:
         title_element = job.find_element(By.CLASS_NAME, "job-list-item__link")
