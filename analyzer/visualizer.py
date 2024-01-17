@@ -42,6 +42,3 @@ class Visualizer:
 
             plt.savefig(file_name)
             plt.close()
-
-        plt.tight_layout()
-        plt.show()

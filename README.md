@@ -34,8 +34,13 @@ mentions in job descriptions, this tool provides insights into the most sought-a
    pip install -r requirements.txt
    ```
 5) Go to [main.py](main.py) and run code.
+   ```angular2html
+   python main.py
+   ```
 
 ## Results
 The results of scraping and visualization are saved in `data/` directory.
-You can view the most popular Python technologies at the time of program creation.
+You can view the most popular Python technologies at the time of program creation 
+for junior, middle and senior experience (junior - up to 1 year of experience, 
+middle - from 1 to 3 years, senior - more than 3 years). 
 ![visualization](data/myplot.png)
